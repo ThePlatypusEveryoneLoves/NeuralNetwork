@@ -29,13 +29,8 @@ private:
 	}
 
 public:
+	Layer() = default;
 	Layer(const Matrix2D& WeightIn, const Matrix1D& BiasIn) {
-		CheckNonJagged(WeightIn, BiasIn);
-		weights = WeightIn;
-		bias = BiasIn;
-	}
-
-	void SetAll(const Matrix2D& WeightIn, const Matrix1D& BiasIn) {
 		CheckNonJagged(WeightIn, BiasIn);
 		weights = WeightIn;
 		bias = BiasIn;
@@ -50,6 +45,13 @@ public:
 		weights.resize(InputSize, std::vector<double>(OutputSize));
 		bias.resize(OutputSize);
 	}
+
+	void SetAll(const Matrix2D& WeightIn, const Matrix1D& BiasIn) {
+		CheckNonJagged(WeightIn, BiasIn);
+		weights = WeightIn;
+		bias = BiasIn;
+	}
+
 	void CalculateOutputs(Matrix1D& input) {
 
 
