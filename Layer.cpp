@@ -4,22 +4,29 @@
 #include<numeric>
 #include<algorithm>
 #include <cassert>
+#include <cmath>
+struct LayerInfo{
+	std::vector<double> WeightedInputs;
+	std::vector<double> Activations;
+};
 struct Layer {
 private:
 	using Matrix2D = std::vector<std::vector<double>>;
 	using Matrix1D = std::vector<double>;
 	Matrix2D weights;
-
+	std::vector<double> WeightedInputs;
 	std::vector<double> bias;
 
 	size_t OutputSize;
 	size_t InputSize;
-
+	double inline sigmoid(double x){
+		return 1 / (1 + exp(-x));
+	}
 	void CheckNonJagged(const Matrix2D& input1, const Matrix1D& input2) {
-		OutputSize = input1[0].size();
-		InputSize = input1.size();
+		OutputSize = input1.size();
+		InputSize = input1[0].size();
 		for (int i = 1; i < input1.size(); i++) {
-			if (OutputSize != input1[i].size()) {
+			if (InputSize != input1[i].size()) {
 				throw std::length_error("Vectors are jagged");
 			}
 		}
@@ -27,7 +34,32 @@ private:
 			throw std::length_error("Bias is not the same as output size");
 		}
 	}
+	void InnerCalculateOutputs(Matrix1D& input){
+		// todo:Make the weights turned 90 degrees
+		std::vector<double> ColumnTemp;
+		std::vector<double> Temp(OutputSize);
 
+		for (int i = 0; i < OutputSize; i++) {
+			//ColumnTemp = extract_column(weights, i);
+			//assert(input.size() == ColumnTemp.size());
+			Temp[i] = sigmoid(std::inner_product(input.begin(), input.end(), weights[i].begin(), bias[i])) ;
+
+		}
+
+		input = Temp;
+	}
+	void InnerCalculateOutputs(Matrix1D& input, LayerInfo& output) {
+		std::vector<double> ColumnTemp;
+
+		for (int i = 0; i < OutputSize; i++) {
+			output.Activations[i] = sigmoid((output.WeightedInputs[i] = std::inner_product(input.begin(), input.end(), weights[i].begin(), 0.0)) + bias[i]);
+
+		}
+
+		input = output.Activations;
+	}
+	template<size_t start, size_t middle, size_t... ending>
+	friend class NeuralNetwork;
 public:
 	Layer() = default;
 	Layer(const Matrix2D& WeightIn, const Matrix1D& BiasIn) {
@@ -42,7 +74,7 @@ public:
 		}
 		InputSize = IInputSize;
 		OutputSize = IOutputSize;
-		weights.resize(InputSize, std::vector<double>(OutputSize));
+		weights.resize(OutputSize, std::vector<double>(InputSize));
 		bias.resize(OutputSize);
 	}
 
@@ -53,35 +85,22 @@ public:
 	}
 
 	void CalculateOutputs(Matrix1D& input) {
-
-
-
 		if (input.size() != InputSize) {
 
 			throw std::length_error("Length of input isn't as specified in constructor");
 		}
 
-
-		auto extract_column = [](const Matrix2D& matrix, int col_idx) {
-			std::vector<double> result;
-			for (const auto& row : matrix) {
-				result.push_back(row[col_idx]);
-			}
-			return result;
-		};
-
-		std::vector<double> ColumnTemp;
-		std::vector<double> Temp(OutputSize);
-
-		for (int i = 0; i < OutputSize; i++) {
-			ColumnTemp = extract_column(weights, i);
-			assert(input.size() == ColumnTemp.size());
-			Temp[i] = (std::inner_product(input.begin(), input.end(), ColumnTemp.begin(), bias[i]));
-
-		}
-
-		input = Temp;
+		InnerCalculateOutputs(input);
 	}
+
+	void CalculateOutputs(Matrix1D& input, LayerInfo& output) {
+		if (input.size() != InputSize) {
+
+			throw std::length_error("Length of input isn't as specified in constructor");
+		}
+		InnerCalculateOutputs(input, output);
+	}
+
 };
 
 
