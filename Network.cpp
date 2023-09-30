@@ -58,7 +58,7 @@ int main() {
 		1,2,3 };
 	network.CalculateOutputs(l);
 	std::cout<<l[0]<<"\n";
-	 assert(l == std::vector<double>{0.5});
+	 assert(l == std::vector<double>{0});
 	 
 	
 	// l = {1,1,1};

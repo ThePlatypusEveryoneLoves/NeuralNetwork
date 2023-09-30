@@ -5,6 +5,7 @@
 #include<algorithm>
 #include <cassert>
 #include <cmath>
+
 struct LayerInfo{
 	std::vector<double> WeightedInputs;
 	std::vector<double> Activations;
@@ -19,8 +20,8 @@ private:
 
 	size_t OutputSize;
 	size_t InputSize;
-	double inline sigmoid(double x){
-		return 1 / (1 + exp(-x));
+	double inline ReLU(double x){
+		return std::max<double>(0,x);
 	}
 	void CheckNonJagged(const Matrix2D& input1, const Matrix1D& input2) {
 		OutputSize = input1.size();
@@ -40,9 +41,7 @@ private:
 		std::vector<double> Temp(OutputSize);
 
 		for (int i = 0; i < OutputSize; i++) {
-			//ColumnTemp = extract_column(weights, i);
-			//assert(input.size() == ColumnTemp.size());
-			Temp[i] = sigmoid(std::inner_product(input.begin(), input.end(), weights[i].begin(), bias[i])) ;
+			Temp[i] = ReLU(std::inner_product(input.begin(), input.end(), weights[i].begin(), bias[i])) ;
 
 		}
 
@@ -52,7 +51,7 @@ private:
 		std::vector<double> ColumnTemp;
 
 		for (int i = 0; i < OutputSize; i++) {
-			output.Activations[i] = sigmoid((output.WeightedInputs[i] = std::inner_product(input.begin(), input.end(), weights[i].begin(), 0.0)) + bias[i]);
+			output.Activations[i] = ReLU((output.WeightedInputs[i] = std::inner_product(input.begin(), input.end(), weights[i].begin(), 0.0)) + bias[i]);
 
 		}
 
