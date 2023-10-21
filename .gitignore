@@ -1,4 +1,7 @@
 *.exe
 
 ./.vscode
+./build
+./CMakeFiles
+CMakeLists.txt
 AVX.cpp
